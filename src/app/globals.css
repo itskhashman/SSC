@@ -1,26 +1,188 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* next-themes puts `class="dark"` on <html>. */
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-plex-arabic), ui-sans-serif, system-ui, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* SSC brand extras */
+  --color-gold: var(--gold);
+  --color-gold-light: var(--gold-light);
+  --color-gold-deep: var(--gold-deep);
+  --color-topbar: var(--topbar);
+  --color-status-on-track: var(--status-on-track);
+  --color-status-at-risk: var(--status-at-risk);
+  --color-status-off-track: var(--status-off-track);
+  --color-status-no-data: var(--status-no-data);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Light theme — taken from the Social Security Corporation website:
+   olive-green navigation, gold accents, warm cream page background. */
+:root {
+  --background: #f7f4ec;
+  --foreground: #3b3b3b;
+  --card: #ffffff;
+  --card-foreground: #3b3b3b;
+  --popover: #ffffff;
+  --popover-foreground: #3b3b3b;
+
+  --primary: #4a5b44;
+  --primary-foreground: #ffffff;
+  --secondary: #ece7db;
+  --secondary-foreground: #4a5b44;
+  --muted: #f1ede4;
+  --muted-foreground: #6f6a5f;
+  /* shadcn uses `accent` for hover backgrounds, so keep it a soft gold tint. */
+  --accent: #f3ecdc;
+  --accent-foreground: #4a5b44;
+  --destructive: #c0392b;
+
+  --border: #e6e0d3;
+  --input: #dcd4c3;
+  --ring: #b5975a;
+
+  --gold: #b5975a;
+  --gold-light: #d6bf86;
+  --gold-deep: #9c7f45;
+  --topbar: #efefef;
+
+  --chart-1: #4a5b44;
+  --chart-2: #b5975a;
+  --chart-3: #7d8f6f;
+  --chart-4: #d6bf86;
+  --chart-5: #2f3a2b;
+
+  --status-on-track: #3f8f5a;
+  --status-at-risk: #d49a1f;
+  --status-off-track: #c0392b;
+  --status-no-data: #a29d92;
+
+  --radius: 0.625rem;
+
+  --sidebar: #4a5b44;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #b5975a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #5b6d54;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #5f7058;
+  --sidebar-ring: #d6bf86;
+}
+
+.dark {
+  --background: #161a14;
+  --foreground: #ece9e2;
+  --card: #1f241c;
+  --card-foreground: #ece9e2;
+  --popover: #1f241c;
+  --popover-foreground: #ece9e2;
+
+  --primary: #95ab88;
+  --primary-foreground: #161a14;
+  --secondary: #2a3026;
+  --secondary-foreground: #ece9e2;
+  --muted: #262b22;
+  --muted-foreground: #a9a79f;
+  --accent: #2f3527;
+  --accent-foreground: #ece9e2;
+  --destructive: #e0675a;
+
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 15%);
+  --ring: #c9ab6b;
+
+  --gold: #c9ab6b;
+  --gold-light: #dcc690;
+  --gold-deep: #a88a4c;
+  --topbar: #1b1f18;
+
+  --chart-1: #95ab88;
+  --chart-2: #c9ab6b;
+  --chart-3: #6f8263;
+  --chart-4: #dcc690;
+  --chart-5: #b7c6ad;
+
+  --status-on-track: #5cb27a;
+  --status-at-risk: #e3ad3c;
+  --status-off-track: #e0675a;
+  --status-no-data: #7d7a72;
+
+  --sidebar: #1c2219;
+  --sidebar-foreground: #ece9e2;
+  --sidebar-primary: #c9ab6b;
+  --sidebar-primary-foreground: #161a14;
+  --sidebar-accent: #2a3226;
+  --sidebar-accent-foreground: #ece9e2;
+  --sidebar-border: rgb(255 255 255 / 8%);
+  --sidebar-ring: #c9ab6b;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  html {
+    @apply font-sans;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* The gold strip on top of the SSC cards. */
+  .gold-bar {
+    background: linear-gradient(
+      90deg,
+      var(--gold-deep),
+      var(--gold-light),
+      var(--gold-deep)
+    );
+  }
 }

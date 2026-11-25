@@ -1,0 +1,177 @@
+"use client";
+
+import Image from "next/image";
+import { LayoutDashboard, Rocket, Target, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import emblem from "@/assets/ssc-emblem.png";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { useLocalize, useStrategyData } from "@/hooks/useStrategy";
+import { useStrategyStore } from "@/store/strategyStore";
+import { useUiStore } from "@/store/uiStore";
+import { PERSPECTIVE_ICONS } from "@/components/common/perspectiveIcons";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail,
+} from "@/components/ui/sidebar";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", key: "dashboard", icon: LayoutDashboard },
+  { href: "/strategy", key: "strategy", icon: Target },
+  { href: "/initiatives", key: "initiatives", icon: Rocket },
+] as const;
+
+export default function AppSidebar({ side }: { side: "left" | "right" }) {
+  const t = useTranslations();
+  const l = useLocalize();
+  const pathname = usePathname();
+  const router = useRouter();
+  const { perspectives, objectives } = useStrategyData();
+  const clearAll = useStrategyStore((s) => s.clearAll);
+  const { selectedObjectiveId, selectedPerspectiveId, selectObjective, selectPerspective } =
+    useUiStore();
+
+  const openPerspective = (id: string) => {
+    selectPerspective(id);
+    router.push("/strategy");
+  };
+  const openObjective = (objectiveId: string, perspectiveId: string) => {
+    selectObjective(objectiveId, perspectiveId);
+    router.push("/strategy");
+  };
+
+  return (
+    <Sidebar side={side} collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              render={<Link href="/dashboard" />}
+              className="hover:bg-transparent"
+            >
+              <Image
+                src={emblem}
+                alt=""
+                width={32}
+                height={32}
+                className="size-8! shrink-0 rounded-md"
+              />
+              <span className="flex flex-col leading-tight">
+                <span className="font-semibold">{t("common.appName")}</span>
+                <span className="text-xs text-sidebar-foreground/70">
+                  {t("common.orgShortName")}
+                </span>
+              </span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-foreground/60">
+            {t("nav.main")}
+          </SidebarGroupLabel>
+          <SidebarMenu>
+            {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
+              const active = pathname.startsWith(href);
+              return (
+                <SidebarMenuItem key={key}>
+                  <SidebarMenuButton
+                    isActive={active}
+                    tooltip={t(`nav.${key}`)}
+                    render={<Link href={href} />}
+                    className="data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground"
+                  >
+                    <Icon />
+                    <span>{t(`nav.${key}`)}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-foreground/60">
+            {t("nav.perspectives")}
+          </SidebarGroupLabel>
+          <SidebarMenu>
+            {perspectives.map((perspective) => {
+              const Icon = PERSPECTIVE_ICONS[perspective.icon];
+              const children = objectives.filter(
+                (o) => o.perspectiveId === perspective.id,
+              );
+              return (
+                <SidebarMenuItem key={perspective.id}>
+                  <SidebarMenuButton
+                    tooltip={l(perspective.name)}
+                    isActive={
+                      pathname.startsWith("/strategy") &&
+                      selectedPerspectiveId === perspective.id
+                    }
+                    onClick={() => openPerspective(perspective.id)}
+                  >
+                    <Icon className="text-gold-light" />
+                    <span>{l(perspective.name)}</span>
+                  </SidebarMenuButton>
+                  {children.length > 0 && (
+                    <SidebarMenuSub>
+                      {children.map((objective) => (
+                        <SidebarMenuSubItem key={objective.id}>
+                          <SidebarMenuSubButton
+                            size="sm"
+                            isActive={
+                              pathname.startsWith("/strategy") &&
+                              selectedObjectiveId === objective.id
+                            }
+                            render={<button type="button" className="w-full text-start" />}
+                            onClick={() => openObjective(objective.id, perspective.id)}
+                          >
+                            <span>{l(objective.name)}</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <ConfirmDialog
+              title={t("common.clearData")}
+              description={t("common.clearDataConfirm")}
+              confirmLabel={t("common.clearData")}
+              onConfirm={clearAll}
+              trigger={
+                <SidebarMenuButton tooltip={t("common.clearData")}>
+                  <Trash2 />
+                  <span>{t("common.clearData")}</span>
+                </SidebarMenuButton>
+              }
+            />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  );
+}
