@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Strategy Management | Social Security Corporation",
-    "description": "Balanced Scorecard management: perspectives, objectives, KPIs and initiatives"
+    "description": "Strategy management: objectives, initiatives and yearly achievement"
   },
   "common": {
     "appName": "Strategy Management",
@@ -31,15 +31,16 @@
     "total": "Total",
     "saved": "Saved",
     "clearData": "Clear all data",
-    "clearDataConfirm": "This permanently deletes the strategy and all perspectives, objectives, KPIs and initiatives. Continue?"
+    "clearDataConfirm": "This permanently deletes the plan and all objectives and initiatives. Continue?",
+    "initiativesCount": "{count, plural, =0 {No initiatives} one {# initiative} other {# initiatives}}"
   },
   "nav": {
     "main": "Main menu",
     "dashboard": "Dashboard",
     "strategy": "Strategy management",
-    "perspectives": "Perspectives & objectives",
     "logoAlt": "Social Security Corporation",
-    "initiatives": "Initiatives"
+    "initiatives": "Initiatives",
+    "objectives": "Objectives"
   },
   "status": {
     "onTrack": "On track",
@@ -53,74 +54,46 @@
     "onHold": "On hold",
     "completed": "Completed"
   },
-  "direction": {
-    "higher": "Higher is better",
-    "lower": "Lower is better"
-  },
-  "frequency": {
-    "monthly": "Monthly",
-    "quarterly": "Quarterly",
-    "yearly": "Yearly"
-  },
   "dashboard": {
     "title": "Dashboard",
-    "subtitle": "Strategy performance summary on the Balanced Scorecard",
+    "subtitle": "Strategy performance summary: objectives and initiatives",
     "overall": "Overall strategy performance — {year}",
-    "overallHint": "Calculated automatically from perspective, objective, KPI and initiative weights.",
-    "perspectivesCount": "Perspectives",
+    "overallHint": "Calculated automatically from objective and initiative weights and yearly achievement.",
     "objectivesCount": "Objectives",
-    "kpisCount": "KPIs",
     "initiativesCount": "Initiatives",
-    "perspectiveScores": "Performance by perspective",
     "score": "Score",
-    "kpiStatus": "KPI status — {year}",
     "objectivesTable": "Strategic objectives performance",
-    "atRiskKpis": "KPIs needing attention — {year}",
-    "noRisks": "All KPIs are on track",
-    "yearlyTrend": "Overall performance by year"
+    "noRisks": "All initiatives are on track",
+    "yearlyTrend": "Overall performance by year",
+    "objectiveScores": "Performance by objective",
+    "initiativeStatus": "Initiative status — {year}",
+    "atRiskInitiatives": "Initiatives needing attention — {year}",
+    "completedCount": "Completed",
+    "needAttentionCount": "Need attention"
   },
   "columns": {
-    "perspective": "Perspective",
     "objective": "Objective",
-    "objectives": "Objectives",
-    "kpi": "KPI",
-    "kpis": "KPIs",
     "initiative": "Initiative",
     "initiatives": "Initiatives",
-    "kpiScore": "KPI score",
-    "initiativeScore": "Initiative progress",
     "score": "Score",
-    "baseline": "Baseline",
-    "achievement": "Achievement",
-    "targetFor": "Target {year}",
-    "actualFor": "Actual {year}",
     "yearWeight": "{year} weight",
     "yearAchievement": "{year} achievement",
     "cumulative": "Achieved / planned to date"
   },
   "strategy": {
     "title": "Strategy management",
-    "subtitle": "Perspectives → objectives → KPIs and initiatives, with weights and automatic scoring",
-    "perspectives": "Balanced Scorecard perspectives",
-    "addPerspective": "Add perspective",
-    "editPerspective": "Edit perspective",
-    "deletePerspectiveWarning": "This deletes the perspective and all its objectives, KPIs and initiatives.",
-    "noPerspectives": "No perspectives yet. Start by adding one.",
-    "objectivesOf": "Objectives: {name}",
+    "subtitle": "Plan → objectives → initiatives, with weights and automatic scoring",
     "addObjective": "Add objective",
     "editObjective": "Edit objective",
-    "deleteObjectiveWarning": "This deletes the objective and all its KPIs and initiatives.",
-    "noObjectives": "No objectives in this perspective.",
+    "deleteObjectiveWarning": "This deletes the objective and all its initiatives.",
+    "noObjectives": "No objectives yet. Start by adding one.",
     "selectedObjective": "Selected objective",
-    "shareOfScore": "{share} of score",
-    "addKpi": "Add KPI",
-    "editKpi": "Edit KPI",
-    "noKpis": "No KPIs for this objective.",
     "addInitiative": "Add initiative",
     "editInitiative": "Edit initiative",
     "noInitiatives": "No initiatives for this objective.",
     "noObjectivesYet": "Add an objective first on the Strategy page",
-    "cumulativeHint": "Cumulative = Σ (year weight × achievement) up to the selected year. Score = achieved ÷ planned."
+    "cumulativeHint": "Cumulative = Σ (year weight × achievement) up to the selected year. Score = achieved ÷ planned.",
+    "objectives": "Strategic objectives"
   },
   "fields": {
     "nameAr": "Name (Arabic)",
@@ -128,20 +101,10 @@
     "descriptionAr": "Description (Arabic)",
     "descriptionEn": "Description (English)",
     "weight": "Weight (%)",
-    "icon": "Icon",
-    "perspective": "Perspective",
     "owner": "Owner",
-    "unit": "Unit",
-    "frequency": "Frequency",
-    "direction": "Direction",
-    "baseline": "Baseline",
-    "target": "Target value",
-    "actual": "Actual value",
-    "actualHint": "Leave actual empty if not measured yet",
     "status": "Status",
     "startYear": "Start year",
     "endYear": "End year",
-    "yearlyValues": "Yearly values",
     "objective": "Objective",
     "objectiveWeight": "Objective weight: {value}",
     "initiativeWeight": "Initiative weight (%)",
@@ -150,15 +113,8 @@
     "yearWeight": "Year weight",
     "achievement": "Achievement",
     "contribution": "Contribution",
-    "achievementFor": "{year} achievement"
-  },
-  "icons": {
-    "users": "Beneficiaries",
-    "wallet": "Financial",
-    "workflow": "Processes",
-    "graduation": "Learning",
-    "shield": "Protection",
-    "target": "Target"
+    "achievementFor": "{year} achievement",
+    "objectiveWeightLabel": "Objective weight (%)"
   },
   "validation": {
     "required": "This field is required",
@@ -166,12 +122,10 @@
     "min": "Must be at least {min}",
     "max": "Must be at most {max}",
     "weightExceeds": "Only {max}% weight is available",
-    "targetEqualsBaseline": "Target must differ from the baseline",
     "endAfterStart": "End date must be after the start date",
     "integer": "Enter a whole number",
     "endYearAfterStart": "End year can't be before the start year",
     "maxYears": "A plan can be at most {max} years",
-    "actualNeedsTarget": "Enter the target first",
     "yearWeightsSum": "Year weights total {total}%; they must equal {expected}%"
   },
   "setup": {
@@ -182,9 +136,8 @@
     "emptyTitle": "No strategic plan yet",
     "emptyDescription": "Start by creating the plan and its years, then add its parts in order:",
     "step1": "Create the plan (name, start and end year)",
-    "step2": "Add perspectives and their weights",
-    "step3": "Add objectives to each perspective with weights",
-    "step4": "Add initiatives and KPIs with yearly weights and achievement",
+    "step2": "Add strategic objectives and their weights (total 100%)",
+    "step3": "Add initiatives to each objective with yearly weights and achievement",
     "overallFor": "Overall performance {year}",
     "loadSample": "Load sample data"
   },

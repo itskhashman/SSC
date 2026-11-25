@@ -36,16 +36,12 @@ export default function InitiativesView() {
 function InitiativesContent() {
   const t = useTranslations();
   const l = useLocalize();
-  const { perspectives, objectives, initiatives } = useStrategyData();
+  const { objectives, initiatives } = useStrategyData();
   const [objectiveFilter, setObjectiveFilter] = useState<string>(ALL);
 
   const options = [
     { value: ALL, label: t("initiatives.allObjectives") },
-    ...perspectives.flatMap((p) =>
-      objectives
-        .filter((o) => o.perspectiveId === p.id)
-        .map((o) => ({ value: o.id, label: `${l(p.name)} › ${l(o.name)}` })),
-    ),
+    ...objectives.map((o) => ({ value: o.id, label: l(o.name) })),
   ];
   const rows =
     objectiveFilter === ALL

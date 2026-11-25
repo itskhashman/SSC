@@ -24,7 +24,7 @@ export default function ObjectivesScoreTable() {
   const format = useFormatter();
   const router = useRouter();
   const selectObjective = useUiStore((s) => s.selectObjective);
-  const { perspectives, objectives } = useStrategyData();
+  const { objectives, initiatives } = useStrategyData();
   const scores = useStrategyScores();
 
   return (
@@ -34,43 +34,40 @@ export default function ObjectivesScoreTable() {
         <TableHeader>
           <TableRow>
             <TableHead className="ps-5">{t("columns.objective")}</TableHead>
-            <TableHead>{t("columns.perspective")}</TableHead>
+            <TableHead>{t("common.owner")}</TableHead>
             <TableHead>{t("common.weight")}</TableHead>
-            <TableHead>{t("columns.kpiScore")}</TableHead>
-            <TableHead>{t("columns.initiativeScore")}</TableHead>
+            <TableHead>{t("columns.initiatives")}</TableHead>
             <TableHead>{t("columns.score")}</TableHead>
             <TableHead className="pe-5">{t("common.status")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {objectives.map((objective, index) => {
-            const perspective = perspectives.find((p) => p.id === objective.perspectiveId);
-            const score = scores.objectives[objective.id];
+            const score = scores.objectives[objective.id] ?? null;
             return (
               <TableRow
                 key={objective.id}
                 className={`cursor-pointer ${ENTER_ROW}`}
                 style={staggerDelay(index, 30)}
                 onClick={() => {
-                  selectObjective(objective.id, objective.perspectiveId);
+                  selectObjective(objective.id);
                   router.push("/strategy");
                 }}
               >
-                <TableCell className="max-w-64 truncate ps-5 font-medium">{l(objective.name)}</TableCell>
-                <TableCell className="max-w-48 truncate text-muted-foreground">
-                  {perspective ? l(perspective.name) : "—"}
-                </TableCell>
+                <TableCell className="max-w-72 truncate ps-5 font-medium">{l(objective.name)}</TableCell>
+                <TableCell className="max-w-48 truncate text-muted-foreground">{objective.owner || "—"}</TableCell>
                 <TableCell className="tabular-nums">{format.number(objective.weight / 100, { style: "percent" })}</TableCell>
-                <TableCell><ScoreBar score={score?.kpis ?? null} /></TableCell>
-                <TableCell><ScoreBar score={score?.initiatives ?? null} /></TableCell>
-                <TableCell><ScoreBar score={score?.total ?? null} /></TableCell>
-                <TableCell className="pe-5"><StatusBadge status={statusFor(score?.total ?? null)} /></TableCell>
+                <TableCell className="tabular-nums">
+                  {format.number(initiatives.filter((i) => i.objectiveId === objective.id).length)}
+                </TableCell>
+                <TableCell><ScoreBar score={score} /></TableCell>
+                <TableCell className="pe-5"><StatusBadge status={statusFor(score)} /></TableCell>
               </TableRow>
             );
           })}
           {objectives.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
                 {t("common.noData")}
               </TableCell>
             </TableRow>

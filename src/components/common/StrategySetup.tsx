@@ -23,7 +23,6 @@ export default function StrategySetup() {
         <li>{t("step1")}</li>
         <li>{t("step2")}</li>
         <li>{t("step3")}</li>
-        <li>{t("step4")}</li>
       </ol>
       <div className="flex flex-wrap justify-center gap-2">
         <Button onClick={() => setOpen(true)}>

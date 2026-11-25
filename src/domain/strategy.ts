@@ -1,11 +1,11 @@
 import type { LocalizedText } from "@/domain/locale";
 
 /**
- * Balanced Scorecard hierarchy:
+ * Hierarchy:
  *   Strategy (one, spanning several years)
- *     → Perspective → Objective → (KPIs + Initiatives)
- * Every level below the strategy carries a `weight` (0–100) relative to its
- * siblings. KPIs and initiatives also carry values per year of the strategy.
+ *     → Objectives (weights sum to 100 across the strategy)
+ *       → Initiatives (weights sum to 100 within their objective,
+ *                      plus a weight and an achievement per year)
  */
 
 export interface Strategy {
@@ -14,53 +14,13 @@ export interface Strategy {
   endYear: number;
 }
 
-export interface Perspective {
-  id: string;
-  name: LocalizedText;
-  description: LocalizedText;
-  weight: number;
-  /** Lucide icon key from PERSPECTIVE_ICONS. */
-  icon: PerspectiveIcon;
-}
-
-export type PerspectiveIcon =
-  | "users"
-  | "wallet"
-  | "workflow"
-  | "graduation"
-  | "shield"
-  | "target";
-
 export interface Objective {
   id: string;
-  perspectiveId: string;
   name: LocalizedText;
   description: LocalizedText;
   owner: string;
+  /** Weight among the strategy's objectives (0–100). */
   weight: number;
-}
-
-export type KpiDirection = "higher" | "lower";
-
-export type KpiFrequency = "monthly" | "quarterly" | "yearly";
-
-/** One year of a KPI. `null` = not set / not measured yet. */
-export interface KpiYear {
-  target: number | null;
-  actual: number | null;
-}
-
-export interface Kpi {
-  id: string;
-  objectiveId: string;
-  name: LocalizedText;
-  unit: string;
-  frequency: KpiFrequency;
-  direction: KpiDirection;
-  baseline: number;
-  weight: number;
-  /** Keyed by year ("2025"). */
-  yearly: Record<string, KpiYear>;
 }
 
 export type InitiativeStatus =
@@ -91,9 +51,7 @@ export interface Initiative {
 
 export interface StrategyData {
   strategy: Strategy | null;
-  perspectives: Perspective[];
   objectives: Objective[];
-  kpis: Kpi[];
   initiatives: Initiative[];
 }
 

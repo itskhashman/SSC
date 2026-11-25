@@ -15,17 +15,18 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 
-export default function PerspectiveScoreChart() {
+/** One bar per objective for the selected year, coloured by score band. */
+export default function ObjectiveScoreChart() {
   const t = useTranslations("dashboard");
   const l = useLocalize();
   const rtl = isRtl(useLocale() as Locale);
-  const { perspectives } = useStrategyData();
+  const { objectives } = useStrategyData();
   const scores = useStrategyScores();
 
-  const rows = perspectives.map((perspective) => {
-    const score = scores.perspectives[perspective.id] ?? null;
+  const rows = objectives.map((objective) => {
+    const score = scores.objectives[objective.id] ?? null;
     return {
-      name: l(perspective.name),
+      name: l(objective.name),
       score: toPercent(score) ?? 0,
       fill: STATUS_STYLES[statusFor(score)].color,
     };
@@ -37,7 +38,7 @@ export default function PerspectiveScoreChart() {
 
   return (
     <GoldCard>
-      <h2 className="mb-4 font-semibold">{t("perspectiveScores")}</h2>
+      <h2 className="mb-4 font-semibold">{t("objectiveScores")}</h2>
       <ChartContainer config={config} className="aspect-auto h-72 w-full">
         <BarChart data={rows} margin={{ top: 24, left: 8, right: 8 }}>
           <CartesianGrid vertical={false} />

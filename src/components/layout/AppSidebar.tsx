@@ -1,14 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { LayoutDashboard, Rocket, Target, Trash2 } from "lucide-react";
+import { Flag, LayoutDashboard, Rocket, Target, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import emblem from "@/assets/ssc-emblem.png";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useLocalize, useStrategyData } from "@/hooks/useStrategy";
 import { useStrategyStore } from "@/store/strategyStore";
 import { useUiStore } from "@/store/uiStore";
-import { PERSPECTIVE_ICONS } from "@/components/common/perspectiveIcons";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import {
   Sidebar,
@@ -20,9 +19,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 
@@ -37,17 +33,13 @@ export default function AppSidebar({ side }: { side: "left" | "right" }) {
   const l = useLocalize();
   const pathname = usePathname();
   const router = useRouter();
-  const { perspectives, objectives } = useStrategyData();
+  const { objectives } = useStrategyData();
   const clearAll = useStrategyStore((s) => s.clearAll);
-  const { selectedObjectiveId, selectedPerspectiveId, selectObjective, selectPerspective } =
-    useUiStore();
+  const selectedObjectiveId = useUiStore((s) => s.selectedObjectiveId);
+  const selectObjective = useUiStore((s) => s.selectObjective);
 
-  const openPerspective = (id: string) => {
-    selectPerspective(id);
-    router.push("/strategy");
-  };
-  const openObjective = (objectiveId: string, perspectiveId: string) => {
-    selectObjective(objectiveId, perspectiveId);
+  const openObjective = (objectiveId: string) => {
+    selectObjective(objectiveId);
     router.push("/strategy");
   };
 
@@ -107,49 +99,23 @@ export default function AppSidebar({ side }: { side: "left" | "right" }) {
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/60">
-            {t("nav.perspectives")}
+            {t("nav.objectives")}
           </SidebarGroupLabel>
           <SidebarMenu>
-            {perspectives.map((perspective) => {
-              const Icon = PERSPECTIVE_ICONS[perspective.icon];
-              const children = objectives.filter(
-                (o) => o.perspectiveId === perspective.id,
-              );
-              return (
-                <SidebarMenuItem key={perspective.id}>
-                  <SidebarMenuButton
-                    tooltip={l(perspective.name)}
-                    isActive={
-                      pathname.startsWith("/strategy") &&
-                      selectedPerspectiveId === perspective.id
-                    }
-                    onClick={() => openPerspective(perspective.id)}
-                  >
-                    <Icon className="text-gold-light" />
-                    <span>{l(perspective.name)}</span>
-                  </SidebarMenuButton>
-                  {children.length > 0 && (
-                    <SidebarMenuSub>
-                      {children.map((objective) => (
-                        <SidebarMenuSubItem key={objective.id}>
-                          <SidebarMenuSubButton
-                            size="sm"
-                            isActive={
-                              pathname.startsWith("/strategy") &&
-                              selectedObjectiveId === objective.id
-                            }
-                            render={<button type="button" className="w-full text-start" />}
-                            onClick={() => openObjective(objective.id, perspective.id)}
-                          >
-                            <span>{l(objective.name)}</span>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
-                </SidebarMenuItem>
-              );
-            })}
+            {objectives.map((objective) => (
+              <SidebarMenuItem key={objective.id}>
+                <SidebarMenuButton
+                  tooltip={l(objective.name)}
+                  isActive={
+                    pathname.startsWith("/strategy") && selectedObjectiveId === objective.id
+                  }
+                  onClick={() => openObjective(objective.id)}
+                >
+                  <Flag className="text-gold-light" />
+                  <span>{l(objective.name)}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

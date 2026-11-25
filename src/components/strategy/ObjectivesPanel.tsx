@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
-import type { Objective, Perspective } from "@/domain/strategy";
+import type { Objective } from "@/domain/strategy";
 import { useLocalize, useStrategyData, useStrategyScores } from "@/hooks/useStrategy";
 import { statusFor } from "@/rules/scoring";
 import { cn } from "@/lib/utils";
@@ -26,32 +26,24 @@ import {
 import ObjectiveFormDialog from "./forms/ObjectiveFormDialog";
 import RowActions from "./RowActions";
 
-export default function ObjectivesPanel({
-  perspective,
-  activeId,
-}: {
-  perspective: Perspective;
-  activeId?: string;
-}) {
+/** All objectives of the strategy. Clicking a row opens its initiatives below. */
+export default function ObjectivesPanel({ activeId }: { activeId?: string }) {
   const t = useTranslations();
   const l = useLocalize();
   const format = useFormatter();
-  const { objectives, kpis, initiatives } = useStrategyData();
+  const { objectives, initiatives } = useStrategyData();
   const scores = useStrategyScores();
   const deleteObjective = useStrategyStore((s) => s.deleteObjective);
   const selectObjective = useUiStore((s) => s.selectObjective);
 
   const [dialog, setDialog] = useState<{ open: boolean; item?: Objective }>({ open: false });
-  const rows = objectives.filter((o) => o.perspectiveId === perspective.id);
 
   return (
     <GoldCard bodyClassName="p-0">
       <div className="flex flex-wrap items-center justify-between gap-3 p-5 pb-3">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 className="font-semibold">
-            {t("strategy.objectivesOf", { name: l(perspective.name) })}
-          </h2>
-          <WeightSummary items={rows} />
+          <h2 className="font-semibold">{t("strategy.objectives")}</h2>
+          <WeightSummary items={objectives} />
         </div>
         <Button size="sm" onClick={() => setDialog({ open: true })}>
           <Plus /> {t("strategy.addObjective")}
@@ -64,7 +56,6 @@ export default function ObjectivesPanel({
             <TableHead className="ps-5">{t("columns.objective")}</TableHead>
             <TableHead>{t("common.owner")}</TableHead>
             <TableHead>{t("common.weight")}</TableHead>
-            <TableHead>{t("columns.kpis")}</TableHead>
             <TableHead>{t("columns.initiatives")}</TableHead>
             <TableHead>{t("columns.score")}</TableHead>
             <TableHead>{t("common.status")}</TableHead>
@@ -72,8 +63,8 @@ export default function ObjectivesPanel({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((objective, index) => {
-            const score = scores.objectives[objective.id]?.total ?? null;
+          {objectives.map((objective, index) => {
+            const score = scores.objectives[objective.id] ?? null;
             const active = objective.id === activeId;
             return (
               <TableRow
@@ -81,15 +72,12 @@ export default function ObjectivesPanel({
                 data-state={active ? "selected" : undefined}
                 className={cn("cursor-pointer", ENTER_ROW, active && "bg-accent!")}
                 style={staggerDelay(index, 30)}
-                onClick={() => selectObjective(objective.id, perspective.id)}
+                onClick={() => selectObjective(objective.id)}
               >
                 <TableCell className="max-w-72 truncate ps-5 font-medium">{l(objective.name)}</TableCell>
                 <TableCell className="max-w-48 truncate text-muted-foreground">{objective.owner || "—"}</TableCell>
                 <TableCell className="tabular-nums">
                   {format.number(objective.weight / 100, { style: "percent" })}
-                </TableCell>
-                <TableCell className="tabular-nums">
-                  {format.number(kpis.filter((k) => k.objectiveId === objective.id).length)}
                 </TableCell>
                 <TableCell className="tabular-nums">
                   {format.number(initiatives.filter((i) => i.objectiveId === objective.id).length)}
@@ -106,9 +94,9 @@ export default function ObjectivesPanel({
               </TableRow>
             );
           })}
-          {rows.length === 0 && (
+          {objectives.length === 0 && (
             <TableRow>
-              <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
+              <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                 {t("strategy.noObjectives")}
               </TableCell>
             </TableRow>
@@ -119,7 +107,6 @@ export default function ObjectivesPanel({
       <ObjectiveFormDialog
         open={dialog.open}
         onOpenChange={(open) => setDialog((d) => ({ ...d, open }))}
-        perspectiveId={perspective.id}
         objective={dialog.item}
       />
     </GoldCard>

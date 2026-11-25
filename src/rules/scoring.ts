@@ -1,18 +1,19 @@
 import { SCORING_CONFIG, type ScoringConfig } from "@/config/scoring";
 import type {
   Initiative,
-  Kpi,
   Objective,
   PerformanceStatus,
-  Perspective,
   StrategyData,
 } from "@/domain/strategy";
 
 /**
  * Pure scoring functions. Every score is a ratio (0–1) or `null` when
- * there is nothing to measure yet. Every score is for one `year` of the
- * strategy. Tuning lives in config/scoring.ts; every function accepts an
- * optional config so it can be tested in isolation.
+ * there is nothing to measure yet, and is for one `year` of the strategy.
+ * Tuning lives in config/scoring.ts; every function accepts an optional
+ * config so it can be tested in isolation.
+ *
+ *   initiative score → objective score (weighted by initiative weight)
+ *                    → overall score   (weighted by objective weight)
  */
 
 type Score = number | null;
@@ -45,30 +46,6 @@ export function weightedAverage(items: Weighted[]): Score {
     scored.reduce((sum, item) => sum + item.score * item.weight, 0) /
     totalWeight
   );
-}
-
-// ── KPIs ──────────────────────────────────────────────────────
-
-/** Achievement of a KPI in `year`: that year's actual against that year's target. */
-export function kpiAchievement(
-  kpi: Kpi,
-  year: number,
-  config: ScoringConfig = SCORING_CONFIG,
-): Score {
-  const entry = kpi.yearly[year];
-  if (!entry || entry.target === null || entry.actual === null) return null;
-  const { target, actual } = entry;
-
-  if (config.kpiMethod === "baseline" && target !== kpi.baseline) {
-    return clamp((actual - kpi.baseline) / (target - kpi.baseline), config);
-  }
-
-  // Ratio method (also the fallback when target equals baseline).
-  if (kpi.direction === "higher") {
-    return target === 0 ? null : clamp(actual / target, config);
-  }
-  if (actual <= 0) return clamp(1, config);
-  return clamp(target / actual, config);
 }
 
 // ── Initiatives ───────────────────────────────────────────────
@@ -127,63 +104,30 @@ export function initiativeScore(
 
 // ── Roll-ups ──────────────────────────────────────────────────
 
-export interface ObjectiveScore {
-  kpis: Score;
-  initiatives: Score;
-  total: Score;
-}
-
+/** Weighted average of the objective's initiatives. */
 export function objectiveScore(
   objective: Objective,
   data: StrategyData,
   year: number,
   config: ScoringConfig = SCORING_CONFIG,
-): ObjectiveScore {
-  const kpis = weightedAverage(
-    data.kpis
-      .filter((kpi) => kpi.objectiveId === objective.id)
-      .map((kpi) => ({ weight: kpi.weight, score: kpiAchievement(kpi, year, config) })),
-  );
-  const initiatives = weightedAverage(
-    data.initiatives
-      .filter((item) => item.objectiveId === objective.id)
-      .map((item) => ({
-        weight: item.weight,
-        score: initiativeScore(item, year, config),
-      })),
-  );
-  const total = weightedAverage([
-    { weight: config.objectiveMix.kpis, score: kpis },
-    { weight: config.objectiveMix.initiatives, score: initiatives },
-  ]);
-  return { kpis, initiatives, total };
-}
-
-export function perspectiveScore(
-  perspective: Perspective,
-  data: StrategyData,
-  year: number,
-  config: ScoringConfig = SCORING_CONFIG,
 ): Score {
   return weightedAverage(
-    data.objectives
-      .filter((objective) => objective.perspectiveId === perspective.id)
-      .map((objective) => ({
-        weight: objective.weight,
-        score: objectiveScore(objective, data, year, config).total,
-      })),
+    data.initiatives
+      .filter((item) => item.objectiveId === objective.id)
+      .map((item) => ({ weight: item.weight, score: initiativeScore(item, year, config) })),
   );
 }
 
+/** Weighted average of all objectives. */
 export function overallScore(
   data: StrategyData,
   year: number,
   config: ScoringConfig = SCORING_CONFIG,
 ): Score {
   return weightedAverage(
-    data.perspectives.map((perspective) => ({
-      weight: perspective.weight,
-      score: perspectiveScore(perspective, data, year, config),
+    data.objectives.map((objective) => ({
+      weight: objective.weight,
+      score: objectiveScore(objective, data, year, config),
     })),
   );
 }

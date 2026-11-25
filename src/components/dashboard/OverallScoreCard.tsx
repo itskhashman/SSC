@@ -1,9 +1,9 @@
 "use client";
 
-import { Flag, Gauge, Layers, Rocket } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Flag, Rocket } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useStrategyData, useStrategyScores } from "@/hooks/useStrategy";
-import { statusFor } from "@/rules/scoring";
+import { initiativeScore, statusFor } from "@/rules/scoring";
 import GoldCard from "@/components/common/GoldCard";
 import StatusBadge, { STATUS_STYLES } from "@/components/common/StatusBadge";
 import { useCountUp } from "@/hooks/useCountUp";
@@ -18,11 +18,19 @@ export default function OverallScoreCard() {
   // Counts up to the score; the bar below follows the same value.
   const animated = useCountUp(percent);
 
+  const needAttention = data.initiatives.filter((i) => {
+    const s = statusFor(initiativeScore(i, year));
+    return s === "atRisk" || s === "offTrack";
+  }).length;
   const counts = [
-    { icon: Layers, label: t("perspectivesCount"), value: data.perspectives.length },
     { icon: Flag, label: t("objectivesCount"), value: data.objectives.length },
-    { icon: Gauge, label: t("kpisCount"), value: data.kpis.length },
     { icon: Rocket, label: t("initiativesCount"), value: data.initiatives.length },
+    {
+      icon: CheckCircle2,
+      label: t("completedCount"),
+      value: data.initiatives.filter((i) => i.status === "completed").length,
+    },
+    { icon: AlertTriangle, label: t("needAttentionCount"), value: needAttention },
   ];
 
   return (

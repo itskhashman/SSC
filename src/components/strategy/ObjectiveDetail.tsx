@@ -1,25 +1,20 @@
 "use client";
 
-import { Gauge, Rocket } from "lucide-react";
-import { useFormatter, useTranslations } from "next-intl";
-import { SCORING_CONFIG } from "@/config/scoring";
+import { Rocket } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { Objective } from "@/domain/strategy";
 import { useLocalize, useStrategyScores } from "@/hooks/useStrategy";
 import { statusFor } from "@/rules/scoring";
 import GoldCard from "@/components/common/GoldCard";
 import ScoreBar from "@/components/common/ScoreBar";
 import StatusBadge from "@/components/common/StatusBadge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import KpisTable from "./KpisTable";
 import InitiativesTable from "./InitiativesTable";
 
-/** Selected objective: score breakdown, then its KPIs and initiatives. */
+/** Selected objective: its score, then its initiatives. */
 export default function ObjectiveDetail({ objective }: { objective: Objective }) {
   const t = useTranslations();
   const l = useLocalize();
-  const format = useFormatter();
-  const score = useStrategyScores().objectives[objective.id];
-  const { kpis: kpiShare, initiatives: initiativeShare } = SCORING_CONFIG.objectiveMix;
+  const score = useStrategyScores().objectives[objective.id] ?? null;
 
   return (
     <GoldCard bodyClassName="space-y-5">
@@ -31,56 +26,16 @@ export default function ObjectiveDetail({ objective }: { objective: Objective })
             <p className="mt-1 text-sm text-muted-foreground">{l(objective.description)}</p>
           )}
         </div>
-        <StatusBadge status={statusFor(score?.total ?? null)} />
-      </div>
-
-      {/* How the objective score is built — mirrors config/scoring.ts. */}
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Breakdown
-          label={t("columns.kpiScore")}
-          share={format.number(kpiShare, { style: "percent" })}
-          score={score?.kpis ?? null}
-        />
-        <Breakdown
-          label={t("columns.initiativeScore")}
-          share={format.number(initiativeShare, { style: "percent" })}
-          score={score?.initiatives ?? null}
-        />
-        <div className="rounded-lg bg-primary/10 p-3">
-          <p className="text-xs font-medium text-primary">{t("columns.score")}</p>
-          <ScoreBar score={score?.total ?? null} className="mt-2" />
+        <div className="flex items-center gap-3">
+          <ScoreBar score={score} className="min-w-48" />
+          <StatusBadge status={statusFor(score)} />
         </div>
       </div>
 
-      <Tabs defaultValue="initiatives">
-        <TabsList>
-          <TabsTrigger value="kpis">
-            <Gauge /> {t("columns.kpis")}
-          </TabsTrigger>
-          <TabsTrigger value="initiatives">
-            <Rocket /> {t("columns.initiatives")}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="kpis" className="pt-3 animate-in fade-in duration-300">
-          <KpisTable objectiveId={objective.id} />
-        </TabsContent>
-        <TabsContent value="initiatives" className="pt-3 animate-in fade-in duration-300">
-          <InitiativesTable objectiveId={objective.id} />
-        </TabsContent>
-      </Tabs>
+      <h3 className="flex items-center gap-2 text-sm font-semibold">
+        <Rocket className="size-4 text-gold" /> {t("columns.initiatives")}
+      </h3>
+      <InitiativesTable objectiveId={objective.id} />
     </GoldCard>
-  );
-}
-
-function Breakdown({ label, share, score }: { label: string; share: string; score: number | null }) {
-  const t = useTranslations("strategy");
-  return (
-    <div className="rounded-lg bg-muted/60 p-3">
-      <p className="flex justify-between text-xs text-muted-foreground">
-        <span>{label}</span>
-        <span>{t("shareOfScore", { share })}</span>
-      </p>
-      <ScoreBar score={score} className="mt-2" />
-    </div>
   );
 }

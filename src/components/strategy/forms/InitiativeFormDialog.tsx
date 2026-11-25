@@ -123,20 +123,15 @@ export default function InitiativeFormDialog({
   );
 }
 
-/** Objective dropdown ("Perspective › Objective") with the objective's weight shown below. */
+/** Objective dropdown with the objective's weight shown below. */
 function ObjectivePicker() {
   const t = useTranslations();
   const l = useLocalize();
   const format = useFormatter();
-  const { perspectives, objectives } = useStrategyData();
+  const { objectives } = useStrategyData();
   const { values } = useFormikContext<InitiativeFormValues>();
   const selected = objectives.find((o) => o.id === values.objectiveId);
-
-  const options = perspectives.flatMap((p) =>
-    objectives
-      .filter((o) => o.perspectiveId === p.id)
-      .map((o) => ({ value: o.id, label: `${l(p.name)} › ${l(o.name)}` })),
-  );
+  const options = objectives.map((o) => ({ value: o.id, label: l(o.name) }));
 
   return (
     <SelectField

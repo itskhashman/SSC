@@ -4,7 +4,7 @@ import { Cell, Label, Pie, PieChart } from "recharts";
 import { useFormatter, useTranslations } from "next-intl";
 import type { PerformanceStatus } from "@/domain/strategy";
 import { useSelectedYear, useStrategyData } from "@/hooks/useStrategy";
-import { kpiAchievement, statusFor } from "@/rules/scoring";
+import { initiativeScore, statusFor } from "@/rules/scoring";
 import GoldCard from "@/components/common/GoldCard";
 import { STATUS_STYLES } from "@/components/common/StatusBadge";
 import {
@@ -16,16 +16,17 @@ import {
 
 const ORDER: PerformanceStatus[] = ["onTrack", "atRisk", "offTrack", "noData"];
 
-export default function KpiStatusChart() {
+/** Donut of initiatives by score band for the selected year. */
+export default function InitiativeStatusChart() {
   const t = useTranslations();
   const format = useFormatter();
-  const { kpis } = useStrategyData();
+  const { initiatives } = useStrategyData();
   const year = useSelectedYear();
 
   const counts = ORDER.map((status) => ({
     status,
     label: t(`status.${status}`),
-    value: kpis.filter((kpi) => statusFor(kpiAchievement(kpi, year)) === status).length,
+    value: initiatives.filter((i) => statusFor(initiativeScore(i, year)) === status).length,
   }));
 
   const config = Object.fromEntries(
@@ -37,7 +38,7 @@ export default function KpiStatusChart() {
 
   return (
     <GoldCard bodyClassName="flex h-full flex-col">
-      <h2 className="mb-2 font-semibold">{t("dashboard.kpiStatus", { year })}</h2>
+      <h2 className="mb-2 font-semibold">{t("dashboard.initiativeStatus", { year })}</h2>
       <ChartContainer config={config} className="mx-auto aspect-square h-56">
         <PieChart>
           <ChartTooltip content={<ChartTooltipContent nameKey="status" hideLabel />} />
@@ -51,10 +52,10 @@ export default function KpiStatusChart() {
                 return (
                   <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
                     <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">
-                      {format.number(kpis.length)}
+                      {format.number(initiatives.length)}
                     </tspan>
                     <tspan x={viewBox.cx} y={(viewBox.cy ?? 0) + 24} className="fill-muted-foreground text-xs">
-                      {t("dashboard.kpisCount")}
+                      {t("dashboard.initiativesCount")}
                     </tspan>
                   </text>
                 );

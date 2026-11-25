@@ -1,8 +1,9 @@
 # SSC Strategy Management
 
-Balanced Scorecard tool for the Social Security Corporation. There is one
-multi-year strategy (e.g. 2024–2026): Perspectives → Objectives → KPIs +
-Initiatives, with weights, values per year and automatic scoring. Three pages:
+Strategy management tool for the Social Security Corporation. There is one
+multi-year strategy (e.g. 2024–2026): Strategy → Objectives → Initiatives, with
+weights, values per year and automatic scoring. There are **no perspectives
+and no KPIs**; they were removed on purpose, so don't add them back. Three pages:
 **Dashboard**, **Strategy management** and **Initiatives**, each with a year
 filter. Next.js 15 App Router, statically exported to GitHub Pages under `/SSC`.
 Bilingual (Arabic default, RTL / English), light and dark themes. Data lives in
@@ -21,8 +22,9 @@ load a small sample plan (`src/fixture/sampleData.ts`, 2024–2026).
 
 - `Strategy { name, startYear, endYear }`. There is a single one, `null` until
   it is created. Saving a new range drops yearly values outside it.
-- `Kpi.yearly[year] = { target, actual }`. Baseline, unit, direction and weight
-  are shared by all years.
+- `Objective`: its weights add up to 100 across the whole strategy.
+- `Initiative`: belongs to one objective. Its weights add up to 100 within that
+  objective.
 - `Initiative.yearly[year] = { weight, achievement }`:
   - `weight` is the share of the initiative planned for that year. The yearly
     weights add up to 100, and Yup enforces this.
@@ -30,8 +32,11 @@ load a small sample plan (`src/fixture/sampleData.ts`, 2024–2026).
   - Years with weight 0 are years the initiative doesn't run.
 - The selected year lives in `uiStore.selectedYear`. Read it with
   `useSelectedYear()`, which clamps it into the strategy's range.
-- Changing the shape of persisted data → bump `version` in `strategyStore`
-  (the current `migrate` discards old data).
+- Changing the shape of persisted data → bump `version` in `strategyStore` and
+  extend `migrate`.
+  - v4 removed perspectives and KPIs. `migrateV3` sets each objective's weight
+    to objective weight × perspective weight ÷ 100.
+  - v1 data and empty stores get the sample plan.
 
 ## Commands
 
@@ -91,8 +96,6 @@ npm run lint
 ## Scoring (single source of truth)
 
 - **Tunable numbers:** `src/config/scoring.ts`.
-  - Objective mix: KPIs 70% / initiatives 30%.
-  - KPI method: `baseline` or `ratio`.
   - Achievement cap.
   - Status thresholds: ≥80% on track, ≥50% at risk.
   - `initiativeScore`: `cumulative` (default) or `annual`.
@@ -100,7 +103,11 @@ npm run lint
 - **Formulas:** `src/rules/scoring.ts`. These are pure functions, and each takes
   a `year` and an optional config. Every score is a ratio from 0 to 1, or `null`
   when there's no data.
-- **KPI score** for a year: that year's actual against that year's target.
+- **Roll-up:**
+  - An objective's score is the weighted average of its initiatives' scores
+    (using the initiative weights).
+  - The overall score is the weighted average of the objective scores (using the
+    objective weights).
 - **Initiative score:**
   - `annual`: the selected year's achievement.
   - `cumulative`: Σ(year weight × achievement) ÷ Σ(year weight), over the years
@@ -151,7 +158,7 @@ npm run lint
 | `app/[locale]/` | Routes. The layout sets `lang`/`dir`, providers and `AppShell`. Pages are thin and render a view. |
 | `components/layout/` | `AppShell`, `AppSidebar` (always visible, collapses to icons), `UtilityBar`, `SiteHeader` |
 | `components/dashboard/` | Dashboard view and widgets (charts use shadcn `chart` + Recharts) |
-| `components/strategy/` | Management view, KPI/initiative tables, `InlineAchievementInput`, `forms/` dialogs (strategy, perspective, objective, KPI, initiative) |
+| `components/strategy/` | Management view, objectives panel, initiatives table, `InlineAchievementInput`, `forms/` dialogs (strategy, objective, initiative) |
 | `components/initiatives/` | Initiatives page (all initiatives, objective filter) |
 | `components/common/` | Shared pieces (GoldCard, PageTitle, StatusBadge, ScoreBar, ConfirmDialog, form/) |
 | `components/ui/` | shadcn components. Edit sparingly. |

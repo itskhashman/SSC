@@ -4,26 +4,11 @@
  * ─────────────────────────────────────────────────────────────
  * All values are plain numbers / flags so business rules can be
  * changed here without touching any formula in rules/scoring.ts.
+ *
+ * Roll-up: initiative → objective (weighted by initiative weight)
+ *          → strategy (weighted by objective weight).
  */
 export const SCORING_CONFIG = {
-  /**
-   * How an objective's score is split between its KPIs and its
-   * initiatives. Must add up to 1. If an objective has only one of
-   * the two (or one has no data yet), the other counts 100%.
-   */
-  objectiveMix: {
-    kpis: 0.7,
-    initiatives: 0.3,
-  },
-
-  /**
-   * How a KPI's achievement for a year is measured:
-   *  - "baseline": progress from baseline toward that year's target
-   *                (actual − baseline) / (target − baseline)
-   *  - "ratio":    actual / target (or target / actual when lower is better)
-   */
-  kpiMethod: "baseline" as "baseline" | "ratio",
-
   /**
    * Which initiative figure rolls up into objectives:
    *  - "cumulative": achieved so far ÷ planned so far, over every year up to

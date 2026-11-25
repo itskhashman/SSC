@@ -5,18 +5,14 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type {
   Initiative,
   InitiativeYear,
-  Kpi,
   Objective,
-  Perspective,
   Strategy,
   StrategyData,
 } from "@/domain/strategy";
 import { SAMPLE_DATA } from "@/fixture/sampleData";
 import { pruneYears } from "@/rules/years";
 
-export type NewPerspective = Omit<Perspective, "id">;
 export type NewObjective = Omit<Objective, "id">;
-export type NewKpi = Omit<Kpi, "id">;
 export type NewInitiative = Omit<Initiative, "id">;
 
 interface StrategyState extends StrategyData {
@@ -26,17 +22,10 @@ interface StrategyState extends StrategyData {
   /** Create or edit the strategy. Yearly values outside a new range are dropped. */
   saveStrategy: (strategy: Strategy) => void;
 
-  addPerspective: (input: NewPerspective) => string;
-  updatePerspective: (id: string, input: NewPerspective) => void;
-  deletePerspective: (id: string) => void;
-
   addObjective: (input: NewObjective) => string;
   updateObjective: (id: string, input: NewObjective) => void;
+  /** Also deletes the objective's initiatives. */
   deleteObjective: (id: string) => void;
-
-  addKpi: (input: NewKpi) => string;
-  updateKpi: (id: string, input: NewKpi) => void;
-  deleteKpi: (id: string) => void;
 
   addInitiative: (input: NewInitiative) => string;
   updateInitiative: (id: string, input: NewInitiative) => void;
@@ -52,14 +41,40 @@ interface StrategyState extends StrategyData {
 
 const EMPTY_DATA: StrategyData = {
   strategy: null,
-  perspectives: [],
   objectives: [],
-  kpis: [],
   initiatives: [],
 };
 
 function newId(prefix: string): string {
   return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
+}
+
+/** Shape saved before v4, when objectives sat under perspectives and KPIs existed. */
+interface StoredV3 {
+  strategy: Strategy | null;
+  perspectives?: { id: string; weight: number }[];
+  objectives?: (Objective & { perspectiveId?: string })[];
+  initiatives?: Initiative[];
+}
+
+/**
+ * v3 → v4: drop perspectives and KPIs. Each objective's weight becomes
+ * objective weight × perspective weight ÷ 100, so the overall score keeps
+ * the same balance between objectives.
+ */
+function migrateV3(saved: StoredV3): StrategyData {
+  const perspectiveWeight = new Map((saved.perspectives ?? []).map((p) => [p.id, p.weight]));
+  return {
+    strategy: saved.strategy,
+    objectives: (saved.objectives ?? []).map(({ perspectiveId, ...objective }) => ({
+      ...objective,
+      weight:
+        Math.round(
+          ((objective.weight * (perspectiveWeight.get(perspectiveId ?? "") ?? 100)) / 100) * 100,
+        ) / 100,
+    })),
+    initiatives: saved.initiatives ?? [],
+  };
 }
 
 export const useStrategyStore = create<StrategyState>()(
@@ -72,35 +87,11 @@ export const useStrategyStore = create<StrategyState>()(
       saveStrategy: (strategy) =>
         set((s) => ({
           strategy,
-          kpis: s.kpis.map((k) => ({ ...k, yearly: pruneYears(k.yearly, strategy) })),
           initiatives: s.initiatives.map((i) => ({
             ...i,
             yearly: pruneYears(i.yearly, strategy),
           })),
         })),
-
-      addPerspective: (input) => {
-        const id = newId("p");
-        set((s) => ({ perspectives: [...s.perspectives, { ...input, id }] }));
-        return id;
-      },
-      updatePerspective: (id, input) =>
-        set((s) => ({
-          perspectives: s.perspectives.map((p) => (p.id === id ? { ...input, id } : p)),
-        })),
-      // Deleting a parent removes everything under it.
-      deletePerspective: (id) =>
-        set((s) => {
-          const objectiveIds = new Set(
-            s.objectives.filter((o) => o.perspectiveId === id).map((o) => o.id),
-          );
-          return {
-            perspectives: s.perspectives.filter((p) => p.id !== id),
-            objectives: s.objectives.filter((o) => !objectiveIds.has(o.id)),
-            kpis: s.kpis.filter((k) => !objectiveIds.has(k.objectiveId)),
-            initiatives: s.initiatives.filter((i) => !objectiveIds.has(i.objectiveId)),
-          };
-        }),
 
       addObjective: (input) => {
         const id = newId("o");
@@ -114,18 +105,8 @@ export const useStrategyStore = create<StrategyState>()(
       deleteObjective: (id) =>
         set((s) => ({
           objectives: s.objectives.filter((o) => o.id !== id),
-          kpis: s.kpis.filter((k) => k.objectiveId !== id),
           initiatives: s.initiatives.filter((i) => i.objectiveId !== id),
         })),
-
-      addKpi: (input) => {
-        const id = newId("k");
-        set((s) => ({ kpis: [...s.kpis, { ...input, id }] }));
-        return id;
-      },
-      updateKpi: (id, input) =>
-        set((s) => ({ kpis: s.kpis.map((k) => (k.id === id ? { ...input, id } : k)) })),
-      deleteKpi: (id) => set((s) => ({ kpis: s.kpis.filter((k) => k.id !== id) })),
 
       addInitiative: (input) => {
         const id = newId("i");
@@ -152,22 +133,20 @@ export const useStrategyStore = create<StrategyState>()(
     }),
     {
       name: "ssc-strategy-data",
-      // v1 (no yearly values) is discarded. v2: yearly values. v3: sample plan by default — a saved empty store
-      // (no strategy yet) gets the sample; a saved strategy is kept as is.
-      version: 3,
+      // v1 (no yearly values) and empty stores → sample plan.
+      // v2/v3 → v4: perspectives and KPIs removed (see migrateV3).
+      version: 4,
       migrate: (persisted, version) => {
-        const saved = persisted as StrategyData | undefined;
-        if (version === 2 && saved?.strategy) return saved;
+        const saved = persisted as StoredV3 | undefined;
+        if (version >= 2 && saved?.strategy) return migrateV3(saved);
         return structuredClone(SAMPLE_DATA);
       },
       storage: createJSONStorage(() => localStorage),
       // Read localStorage after mount so server HTML and first client render match.
       skipHydration: true,
-      partialize: ({ strategy, perspectives, objectives, kpis, initiatives }) => ({
+      partialize: ({ strategy, objectives, initiatives }) => ({
         strategy,
-        perspectives,
         objectives,
-        kpis,
         initiatives,
       }),
       onRehydrateStorage: () => () => {
@@ -181,9 +160,7 @@ export const useStrategyStore = create<StrategyState>()(
 export function selectData(state: StrategyData): StrategyData {
   return {
     strategy: state.strategy,
-    perspectives: state.perspectives,
     objectives: state.objectives,
-    kpis: state.kpis,
     initiatives: state.initiatives,
   };
 }

@@ -1,11 +1,6 @@
 import * as yup from "yup";
 import { SCORING_CONFIG } from "@/config/scoring";
-import type {
-  InitiativeStatus,
-  KpiDirection,
-  KpiFrequency,
-  PerspectiveIcon,
-} from "@/domain/strategy";
+import type { InitiativeStatus } from "@/domain/strategy";
 
 /**
  * Yup schemas for every form. Messages come from next-intl's
@@ -89,31 +84,9 @@ export function strategySchema(t: ValidationT) {
   });
 }
 
-// ── Perspective ───────────────────────────────────────────────
-
-export interface PerspectiveFormValues {
-  nameAr: string;
-  nameEn: string;
-  descriptionAr: string;
-  descriptionEn: string;
-  weight: number | string;
-  icon: PerspectiveIcon;
-}
-
-export function perspectiveSchema(t: ValidationT, maxWeight: number) {
-  return yup.object({
-    ...bilingual(t),
-    descriptionAr: yup.string().default(""),
-    descriptionEn: yup.string().default(""),
-    weight: weight(t, () => maxWeight),
-    icon: yup.string().required(t("required")),
-  });
-}
-
 // ── Objective ─────────────────────────────────────────────────
 
 export interface ObjectiveFormValues {
-  perspectiveId: string;
   nameAr: string;
   nameEn: string;
   descriptionAr: string;
@@ -122,57 +95,14 @@ export interface ObjectiveFormValues {
   weight: number | string;
 }
 
-export function objectiveSchema(
-  t: ValidationT,
-  maxWeightFor: (perspectiveId: string) => number,
-) {
+/** `maxWeight` = what the other objectives leave of 100. */
+export function objectiveSchema(t: ValidationT, maxWeight: number) {
   return yup.object({
-    perspectiveId: yup.string().required(t("required")),
     ...bilingual(t),
     descriptionAr: yup.string().default(""),
     descriptionEn: yup.string().default(""),
     owner: yup.string().trim().default(""),
-    weight: weight(t, (parent) => maxWeightFor(String(parent.perspectiveId ?? ""))),
-  });
-}
-
-// ── KPI ───────────────────────────────────────────────────────
-
-export interface KpiYearFormValues {
-  year: number;
-  target: number | string | null;
-  actual: number | string | null;
-}
-
-export interface KpiFormValues {
-  nameAr: string;
-  nameEn: string;
-  unit: string;
-  frequency: KpiFrequency;
-  direction: KpiDirection;
-  baseline: number | string;
-  weight: number | string;
-  /** One row per strategy year. */
-  years: KpiYearFormValues[];
-}
-
-export function kpiSchema(t: ValidationT, maxWeight: number) {
-  return yup.object({
-    ...bilingual(t),
-    unit: yup.string().trim().default(""),
-    frequency: yup.string().required(t("required")),
-    direction: yup.string().required(t("required")),
-    baseline: number(t).required(t("required")),
     weight: weight(t, () => maxWeight),
-    years: yup.array(
-      yup.object({
-        year: yup.number().required(),
-        target: optionalNumber(t),
-        actual: optionalNumber(t).test("needs-target", t("actualNeedsTarget"), function (value) {
-          return value === null || (this.parent.target !== null && this.parent.target !== "");
-        }),
-      }),
-    ),
   });
 }
 
