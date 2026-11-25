@@ -6,6 +6,7 @@ import { useStrategyData, useStrategyScores } from "@/hooks/useStrategy";
 import { statusFor } from "@/rules/scoring";
 import GoldCard from "@/components/common/GoldCard";
 import StatusBadge, { STATUS_STYLES } from "@/components/common/StatusBadge";
+import { useCountUp } from "@/hooks/useCountUp";
 
 export default function OverallScoreCard() {
   const t = useTranslations("dashboard");
@@ -14,6 +15,8 @@ export default function OverallScoreCard() {
   const { overall, year } = useStrategyScores();
   const status = statusFor(overall);
   const percent = overall === null ? 0 : overall * 100;
+  // Counts up to the score; the bar below follows the same value.
+  const animated = useCountUp(percent);
 
   const counts = [
     { icon: Layers, label: t("perspectivesCount"), value: data.perspectives.length },
@@ -28,7 +31,9 @@ export default function OverallScoreCard() {
         <div>
           <p className="text-sm text-muted-foreground">{t("overall", { year })}</p>
           <p className="mt-1 text-5xl font-bold tabular-nums text-primary">
-            {overall === null ? "—" : format.number(overall, { style: "percent" })}
+            {overall === null
+              ? "—"
+              : format.number(Math.round(animated) / 100, { style: "percent" })}
           </p>
         </div>
         <StatusBadge status={status} />
@@ -36,8 +41,8 @@ export default function OverallScoreCard() {
 
       <div className="h-3 overflow-hidden rounded-full bg-muted">
         <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${percent}%`, background: STATUS_STYLES[status].color }}
+          className="h-full rounded-full"
+          style={{ width: `${animated}%`, background: STATUS_STYLES[status].color }}
         />
       </div>
       <p className="text-xs text-muted-foreground">{t("overallHint")}</p>

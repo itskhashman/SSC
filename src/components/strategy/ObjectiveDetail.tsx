@@ -61,10 +61,10 @@ export default function ObjectiveDetail({ objective }: { objective: Objective })
             <Rocket /> {t("columns.initiatives")}
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="kpis" className="pt-3">
+        <TabsContent value="kpis" className="pt-3 animate-in fade-in duration-300">
           <KpisTable objectiveId={objective.id} />
         </TabsContent>
-        <TabsContent value="initiatives" className="pt-3">
+        <TabsContent value="initiatives" className="pt-3 animate-in fade-in duration-300">
           <InitiativesTable objectiveId={objective.id} />
         </TabsContent>
       </Tabs>

@@ -7,6 +7,7 @@ import type { Perspective } from "@/domain/strategy";
 import { useLocalize, useStrategyData, useStrategyScores } from "@/hooks/useStrategy";
 import { statusFor } from "@/rules/scoring";
 import { cn } from "@/lib/utils";
+import { ENTER_ROW, staggerDelay } from "@/lib/motion";
 import { useStrategyStore } from "@/store/strategyStore";
 import { useUiStore } from "@/store/uiStore";
 import GoldCard from "@/components/common/GoldCard";
@@ -61,7 +62,7 @@ export default function PerspectivesPanel({ activeId }: { activeId?: string }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {perspectives.map((perspective) => {
+          {perspectives.map((perspective, index) => {
             const Icon = PERSPECTIVE_ICONS[perspective.icon];
             const score = scores.perspectives[perspective.id] ?? null;
             const active = perspective.id === activeId;
@@ -69,7 +70,8 @@ export default function PerspectivesPanel({ activeId }: { activeId?: string }) {
               <TableRow
                 key={perspective.id}
                 data-state={active ? "selected" : undefined}
-                className={cn("cursor-pointer", active && "bg-accent!")}
+                className={cn("cursor-pointer", ENTER_ROW, active && "bg-accent!")}
+                style={staggerDelay(index, 30)}
                 onClick={() => selectPerspective(perspective.id)}
               >
                 <TableCell className="ps-5">

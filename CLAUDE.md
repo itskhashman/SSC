@@ -50,7 +50,8 @@ npm run lint
 
 - `.github/workflows/deploy.yml` runs on push to `main`: `npm ci` → `npm run build`
   → uploads `out/` to GitHub Pages. Repo Settings → Pages → Source must be
-  **GitHub Actions**.
+  **GitHub Actions**. Otherwise the "Setup Pages" step fails with
+  "Get Pages site failed… Not Found".
 - `output: "export"`, `basePath: "/SSC"`, `trailingSlash: true`,
   `images.unoptimized`. No server: no middleware, API routes or runtime redirects.
 - `basePath` in `next.config.ts` and `NEXT_PUBLIC_BASE_PATH` in `.env` must both
@@ -115,6 +116,20 @@ npm run lint
   what's still available, and `WeightSummary` warns when siblings ≠ 100%.
 - **Changing a business rule:** edit the config first, and change formulas only
   when the rule can't be expressed as config.
+
+## Animation
+
+- CSS only, using `tw-animate-css` classes. No animation library.
+- Shared helpers are in `src/lib/motion.ts`:
+  - `ENTER_UP` for cards and sections
+  - `ENTER_ROW` for table rows
+  - `staggerDelay(index)` for items that appear one after another
+- `Reveal` wraps a section with an `index` for its order on the page.
+- `app/[locale]/template.tsx` fades the page in on every navigation.
+- `ScoreBar` grows from 0, `useCountUp` animates the overall score, and
+  `GoldCard interactive` lifts on hover.
+- `globals.css` turns every animation off under `prefers-reduced-motion`.
+  Keep durations at 150–700 ms.
 
 ## Theme
 

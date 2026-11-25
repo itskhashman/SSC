@@ -6,6 +6,7 @@ import { useUiStore } from "@/store/uiStore";
 import PageTitle from "@/components/common/PageTitle";
 import HydrationGate from "@/components/common/HydrationGate";
 import YearSelect from "@/components/common/YearSelect";
+import Reveal from "@/components/common/Reveal";
 import StrategyHeader from "./StrategyHeader";
 import PerspectivesPanel from "./PerspectivesPanel";
 import ObjectivesPanel from "./ObjectivesPanel";
@@ -43,12 +44,19 @@ function StrategyContent() {
 
   return (
     <div className="space-y-6">
-      <StrategyHeader />
-      <PerspectivesPanel activeId={perspective?.id} />
+      <Reveal index={0}><StrategyHeader /></Reveal>
+      <Reveal index={1}><PerspectivesPanel activeId={perspective?.id} /></Reveal>
       {perspective && (
-        <ObjectivesPanel perspective={perspective} activeId={objective?.id} />
+        // Keyed so it re-animates when another perspective / objective is picked.
+        <Reveal key={perspective.id} index={2}>
+          <ObjectivesPanel perspective={perspective} activeId={objective?.id} />
+        </Reveal>
       )}
-      {objective && <ObjectiveDetail objective={objective} />}
+      {objective && (
+        <Reveal key={objective.id} index={3}>
+          <ObjectiveDetail objective={objective} />
+        </Reveal>
+      )}
     </div>
   );
 }

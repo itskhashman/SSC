@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-/** Grey top strip: sidebar toggle, language, font size and theme — as on the SSC site. */
 export default function UtilityBar() {
   const t = useTranslations("common");
   const locale = useLocale() as Locale;
@@ -35,13 +34,31 @@ export default function UtilityBar() {
           {LOCALE_LABELS[alternate]}
         </Button>
         <Separator orientation="vertical" className="mx-1 h-5!" />
-        <Button variant="ghost" size="icon-sm" onClick={decreaseFont} aria-label={t("fontDecrease")} title={t("fontDecrease")}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={decreaseFont}
+          aria-label={t("fontDecrease")}
+          title={t("fontDecrease")}
+        >
           <span className="text-xs font-bold">A-</span>
         </Button>
-        <Button variant="ghost" size="icon-sm" onClick={resetFont} aria-label={t("fontReset")} title={t("fontReset")}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={resetFont}
+          aria-label={t("fontReset")}
+          title={t("fontReset")}
+        >
           <span className="text-sm font-bold">A</span>
         </Button>
-        <Button variant="ghost" size="icon-sm" onClick={increaseFont} aria-label={t("fontIncrease")} title={t("fontIncrease")}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={increaseFont}
+          aria-label={t("fontIncrease")}
+          title={t("fontIncrease")}
+        >
           <span className="text-base font-bold">A+</span>
         </Button>
         <Separator orientation="vertical" className="mx-1 h-5!" />

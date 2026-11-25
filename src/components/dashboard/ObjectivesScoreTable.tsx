@@ -2,6 +2,7 @@
 
 import { useFormatter, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { ENTER_ROW, staggerDelay } from "@/lib/motion";
 import { useLocalize, useStrategyData, useStrategyScores } from "@/hooks/useStrategy";
 import { statusFor } from "@/rules/scoring";
 import { useUiStore } from "@/store/uiStore";
@@ -42,13 +43,14 @@ export default function ObjectivesScoreTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {objectives.map((objective) => {
+          {objectives.map((objective, index) => {
             const perspective = perspectives.find((p) => p.id === objective.perspectiveId);
             const score = scores.objectives[objective.id];
             return (
               <TableRow
                 key={objective.id}
-                className="cursor-pointer"
+                className={`cursor-pointer ${ENTER_ROW}`}
+                style={staggerDelay(index, 30)}
                 onClick={() => {
                   selectObjective(objective.id, objective.perspectiveId);
                   router.push("/strategy");

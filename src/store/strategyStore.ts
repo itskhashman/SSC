@@ -65,7 +65,8 @@ function newId(prefix: string): string {
 export const useStrategyStore = create<StrategyState>()(
   persist(
     (set) => ({
-      ...EMPTY_DATA,
+      // First visit (nothing in localStorage) starts with the sample plan.
+      ...structuredClone(SAMPLE_DATA),
       hydrated: false,
 
       saveStrategy: (strategy) =>
@@ -151,9 +152,14 @@ export const useStrategyStore = create<StrategyState>()(
     }),
     {
       name: "ssc-strategy-data",
-      // v2: yearly KPI / initiative values. Older saved data is discarded.
-      version: 2,
-      migrate: () => ({ ...EMPTY_DATA }),
+      // v1 (no yearly values) is discarded. v2: yearly values. v3: sample plan by default — a saved empty store
+      // (no strategy yet) gets the sample; a saved strategy is kept as is.
+      version: 3,
+      migrate: (persisted, version) => {
+        const saved = persisted as StrategyData | undefined;
+        if (version === 2 && saved?.strategy) return saved;
+        return structuredClone(SAMPLE_DATA);
+      },
       storage: createJSONStorage(() => localStorage),
       // Read localStorage after mount so server HTML and first client render match.
       skipHydration: true,

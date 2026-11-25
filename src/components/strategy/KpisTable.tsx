@@ -7,6 +7,7 @@ import type { Kpi } from "@/domain/strategy";
 import { useLocalize, useSelectedYear, useStrategyData } from "@/hooks/useStrategy";
 import { kpiAchievement, statusFor } from "@/rules/scoring";
 import { useStrategyStore } from "@/store/strategyStore";
+import { ENTER_ROW, staggerDelay } from "@/lib/motion";
 import ScoreBar from "@/components/common/ScoreBar";
 import StatusBadge from "@/components/common/StatusBadge";
 import WeightSummary from "@/components/common/WeightSummary";
@@ -59,12 +60,12 @@ export default function KpisTable({ objectiveId }: { objectiveId: string }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((kpi) => {
+            {rows.map((kpi, index) => {
               const score = kpiAchievement(kpi, year);
               const entry = kpi.yearly[year];
               const Arrow = kpi.direction === "higher" ? ArrowUp : ArrowDown;
               return (
-                <TableRow key={kpi.id}>
+                <TableRow key={kpi.id} className={ENTER_ROW} style={staggerDelay(index, 30)}>
                   <TableCell className="max-w-72 ps-4">
                     <span className="flex items-center gap-2 font-medium">
                       <Arrow

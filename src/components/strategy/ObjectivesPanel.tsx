@@ -7,6 +7,7 @@ import type { Objective, Perspective } from "@/domain/strategy";
 import { useLocalize, useStrategyData, useStrategyScores } from "@/hooks/useStrategy";
 import { statusFor } from "@/rules/scoring";
 import { cn } from "@/lib/utils";
+import { ENTER_ROW, staggerDelay } from "@/lib/motion";
 import { useStrategyStore } from "@/store/strategyStore";
 import { useUiStore } from "@/store/uiStore";
 import GoldCard from "@/components/common/GoldCard";
@@ -71,14 +72,15 @@ export default function ObjectivesPanel({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((objective) => {
+          {rows.map((objective, index) => {
             const score = scores.objectives[objective.id]?.total ?? null;
             const active = objective.id === activeId;
             return (
               <TableRow
                 key={objective.id}
                 data-state={active ? "selected" : undefined}
-                className={cn("cursor-pointer", active && "bg-accent!")}
+                className={cn("cursor-pointer", ENTER_ROW, active && "bg-accent!")}
+                style={staggerDelay(index, 30)}
                 onClick={() => selectObjective(objective.id, perspective.id)}
               >
                 <TableCell className="max-w-72 truncate ps-5 font-medium">{l(objective.name)}</TableCell>

@@ -4,6 +4,7 @@ import { AlertTriangle } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useLocalize, useSelectedYear, useStrategyData } from "@/hooks/useStrategy";
 import { kpiAchievement, statusFor } from "@/rules/scoring";
+import { ENTER_ROW, staggerDelay } from "@/lib/motion";
 import GoldCard from "@/components/common/GoldCard";
 import ScoreBar from "@/components/common/ScoreBar";
 import StatusBadge from "@/components/common/StatusBadge";
@@ -54,10 +55,10 @@ export default function AtRiskKpisTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map(({ kpi, score }) => {
+          {rows.map(({ kpi, score }, index) => {
             const objective = objectives.find((o) => o.id === kpi.objectiveId);
             return (
-              <TableRow key={kpi.id}>
+              <TableRow key={kpi.id} className={ENTER_ROW} style={staggerDelay(index, 30)}>
                 <TableCell className="max-w-64 truncate ps-5 font-medium">{l(kpi.name)}</TableCell>
                 <TableCell className="max-w-56 truncate text-muted-foreground">
                   {objective ? l(objective.name) : "—"}

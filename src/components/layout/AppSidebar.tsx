@@ -84,7 +84,7 @@ export default function AppSidebar({ side }: { side: "left" | "right" }) {
           <SidebarGroupLabel className="text-sidebar-foreground/60">
             {t("nav.main")}
           </SidebarGroupLabel>
-          <SidebarMenu>
+          <SidebarMenu className="gap-1.5">
             {NAV_ITEMS.map(({ href, key, icon: Icon }) => {
               const active = pathname.startsWith(href);
               return (
@@ -93,7 +93,8 @@ export default function AppSidebar({ side }: { side: "left" | "right" }) {
                     isActive={active}
                     tooltip={t(`nav.${key}`)}
                     render={<Link href={href} />}
-                    className="data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground"
+                    // Larger than the default h-8 / text-sm main menu items.
+                    className="h-11 gap-3 px-3 text-base data-active:bg-sidebar-primary data-active:text-sidebar-primary-foreground [&_svg]:size-5!"
                   >
                     <Icon />
                     <span>{t(`nav.${key}`)}</span>

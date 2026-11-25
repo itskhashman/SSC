@@ -7,6 +7,7 @@ import type { Initiative, InitiativeStatus } from "@/domain/strategy";
 import { useLocalize, useSelectedYear, useStrategyData } from "@/hooks/useStrategy";
 import { initiativeProgress, initiativeScore, statusFor } from "@/rules/scoring";
 import { cn } from "@/lib/utils";
+import { ENTER_ROW, staggerDelay } from "@/lib/motion";
 import { useStrategyStore } from "@/store/strategyStore";
 import ScoreBar from "@/components/common/ScoreBar";
 import StatusBadge from "@/components/common/StatusBadge";
@@ -84,13 +85,13 @@ export default function InitiativesTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((initiative) => {
+            {rows.map((initiative, index) => {
               const objective = objectives.find((o) => o.id === initiative.objectiveId);
               const progress = initiativeProgress(initiative, year);
               const score = initiativeScore(initiative, year);
               const yearWeight = initiative.yearly[year]?.weight ?? 0;
               return (
-                <TableRow key={initiative.id}>
+                <TableRow key={initiative.id} className={ENTER_ROW} style={staggerDelay(index, 30)}>
                   <TableCell className="max-w-64 ps-4">
                     <p className="truncate font-medium">{l(initiative.name)}</p>
                     {initiative.owner && (

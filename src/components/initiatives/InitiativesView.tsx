@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useLocalize, useStrategyData } from "@/hooks/useStrategy";
 import GoldCard from "@/components/common/GoldCard";
 import HydrationGate from "@/components/common/HydrationGate";
+import Reveal from "@/components/common/Reveal";
 import PageTitle from "@/components/common/PageTitle";
 import YearSelect from "@/components/common/YearSelect";
 import InitiativesTable from "@/components/strategy/InitiativesTable";
@@ -52,6 +53,7 @@ function InitiativesContent() {
       : initiatives.filter((i) => i.objectiveId === objectiveFilter);
 
   return (
+    <Reveal>
     <GoldCard bodyClassName="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-sm text-muted-foreground">{t("initiatives.filterByObjective")}</span>
@@ -78,5 +80,6 @@ function InitiativesContent() {
         showWeightSummary={objectiveFilter !== ALL}
       />
     </GoldCard>
+    </Reveal>
   );
 }
