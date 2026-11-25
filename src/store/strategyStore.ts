@@ -11,6 +11,7 @@ import type {
   Strategy,
   StrategyData,
 } from "@/domain/strategy";
+import { SAMPLE_DATA } from "@/fixture/sampleData";
 import { pruneYears } from "@/rules/years";
 
 export type NewPerspective = Omit<Perspective, "id">;
@@ -43,6 +44,8 @@ interface StrategyState extends StrategyData {
   updateInitiativeYear: (id: string, year: number, patch: Partial<InitiativeYear>) => void;
   deleteInitiative: (id: string) => void;
 
+  /** Replace everything with the small sample plan. */
+  loadSample: () => void;
   /** Remove everything, including the strategy. */
   clearAll: () => void;
 }
@@ -143,6 +146,7 @@ export const useStrategyStore = create<StrategyState>()(
       deleteInitiative: (id) =>
         set((s) => ({ initiatives: s.initiatives.filter((i) => i.id !== id) })),
 
+      loadSample: () => set(structuredClone(SAMPLE_DATA)),
       clearAll: () => set({ ...EMPTY_DATA }),
     }),
     {

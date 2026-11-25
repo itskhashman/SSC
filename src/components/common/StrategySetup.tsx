@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Target } from "lucide-react";
+import { Database, Plus, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useStrategyStore } from "@/store/strategyStore";
 import { Button } from "@/components/ui/button";
 import GoldCard from "./GoldCard";
 import StrategyFormDialog from "@/components/strategy/forms/StrategyFormDialog";
@@ -11,6 +12,7 @@ import StrategyFormDialog from "@/components/strategy/forms/StrategyFormDialog";
 export default function StrategySetup() {
   const t = useTranslations("setup");
   const [open, setOpen] = useState(false);
+  const loadSample = useStrategyStore((s) => s.loadSample);
 
   return (
     <GoldCard className="mx-auto max-w-xl" bodyClassName="flex flex-col items-center gap-4 p-10 text-center">
@@ -23,9 +25,14 @@ export default function StrategySetup() {
         <li>{t("step3")}</li>
         <li>{t("step4")}</li>
       </ol>
-      <Button onClick={() => setOpen(true)}>
-        <Plus /> {t("createTitle")}
-      </Button>
+      <div className="flex flex-wrap justify-center gap-2">
+        <Button onClick={() => setOpen(true)}>
+          <Plus /> {t("createTitle")}
+        </Button>
+        <Button variant="outline" onClick={loadSample}>
+          <Database /> {t("loadSample")}
+        </Button>
+      </div>
       <StrategyFormDialog open={open} onOpenChange={setOpen} />
     </GoldCard>
   );

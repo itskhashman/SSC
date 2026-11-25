@@ -7,7 +7,8 @@ Initiatives, with weights, values per year and automatic scoring. Three pages:
 filter. Next.js 15 App Router, statically exported to GitHub Pages under `/SSC`.
 Bilingual (Arabic default, RTL / English), light and dark themes. Data lives in
 the browser (`localStorage`); there is no backend yet. The app starts empty
-(no sample data) and shows a "create strategy" card until a strategy exists.
+and shows a "create strategy" card until a strategy exists. That card can also
+load a small sample plan (`src/fixture/sampleData.ts`, 2024–2026).
 
 ## Git and commits
 
@@ -144,3 +145,4 @@ npm run lint
 | `rules/` | Pure logic (scoring, weights, years, locale) |
 | `schemas/` | Yup schemas |
 | `store/` | Zustand stores (`strategyStore` data, `uiStore` selection / year / font size) |
+| `fixture/` | Sample plan, loaded only from the empty-state button |

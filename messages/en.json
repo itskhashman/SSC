@@ -185,7 +185,8 @@
     "step2": "Add perspectives and their weights",
     "step3": "Add objectives to each perspective with weights",
     "step4": "Add initiatives and KPIs with yearly weights and achievement",
-    "overallFor": "Overall performance {year}"
+    "overallFor": "Overall performance {year}",
+    "loadSample": "Load sample data"
   },
   "initiatives": {
     "title": "Initiatives",
