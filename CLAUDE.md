@@ -53,8 +53,12 @@ npm run lint
 
 ## Deployment
 
-- `.github/workflows/deploy.yml` runs on push to `main`: `npm ci` → `npm run build`
-  → uploads `out/` to GitHub Pages. Repo Settings → Pages → Source must be
+- `.github/workflows/deploy.yml` runs on push to `main` and has two jobs:
+  - `build`: `npm ci` → `npm run build` → uploads `out/`.
+  - `deploy`: publishes it to GitHub Pages.
+  - Keep the jobs separate. With one job, a "Re-run failed jobs" uploads a
+    second artifact and deploy-pages fails with "Multiple artifacts". Re-running
+    only the `deploy` job is safe. Repo Settings → Pages → Source must be
   **GitHub Actions**. Otherwise the "Setup Pages" step fails with
   "Get Pages site failed… Not Found".
 - `output: "export"`, `basePath: "/SSC"`, `trailingSlash: true`,
